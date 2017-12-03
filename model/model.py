@@ -22,10 +22,10 @@ class Model(nn.Module):
         self.out_attention = EmbeddingAttention(h_size, 1, dropout)
 
         self.fc = nn.Sequential(
-            weight_norm(nn.Linear(h_size, 100)),
+            weight_norm(nn.Linear(h_size, h_size)),
             nn.SELU(),
 
-            weight_norm(nn.Linear(h_size, h_size)),
+            weight_norm(nn.Linear(h_size, 100)),
             nn.SELU(),
 
             weight_norm(nn.Linear(100, n_classes))
