@@ -26,8 +26,6 @@ class Model(nn.Module):
             weight_norm(nn.Conv1d(n_lockups, 3, 3, 1, 1, bias=False)),
             nn.SELU(),
 
-            ResNet(3, 3),
-
             weight_norm(nn.Conv1d(3, 1, 3, 1, 1, bias=False)),
             nn.SELU()
         )

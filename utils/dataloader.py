@@ -103,7 +103,7 @@ class Dataloader():
         test_data = pnd.read_csv(self.data_file['test'], sep='\t', names=['title', 'article'])
 
         self.data = {
-            'train': train_data[:],
+            'train': train_data[3000:],
             'valid': train_data[:10],
             'test': test_data
         }
@@ -166,7 +166,7 @@ class Dataloader():
         indexes = np.random.choice(list(self.data[target].index), size=batch_size)
         lines = self.data[target].ix[indexes]
 
-        text = list(lines['title'])
+        text = list(lines['article'])
         target = list(lines['class'])
 
         return self.pad_input(text), np.array(target)
@@ -195,7 +195,7 @@ class Dataloader():
 
         for i in range(int(15000 / 200)):
 
-            data = list(self.data['test'][i * 200: i * 200 + 200]['title'])
+            data = list(self.data['article'][i * 200: i * 200 + 200]['title'])
             data = self.pad_input(data)
 
             yield Variable(t.from_numpy(data), volatile=True)

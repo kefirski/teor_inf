@@ -15,6 +15,8 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='inf')
     parser.add_argument('--num-iterations', type=int, default=250_000, metavar='NI',
                         help='num iterations (default: 250_000)')
+    parser.add_argument('--steps', type=int, default=15, metavar='S',
+                        help='num steps before optimization step (default: 80)')
     parser.add_argument('--batch-size', type=int, default=80, metavar='BS',
                         help='batch size (default: 80)')
     parser.add_argument('--num-threads', type=int, default=4, metavar='BS',
@@ -36,7 +38,7 @@ if __name__ == "__main__":
     t.set_num_threads(args.num_threads)
     loader = Dataloader('~/projects/teor_inf/utils/data/', '~/projects/wiki.ru.bin')
 
-    model = Model(loader.vocab_size, 8, 14, 300, 30, 30, 9, n_classes=len(loader.idx_to_label), dropout=args.dropout)
+    model = Model(loader.vocab_size, 4, 10, 300, 30, 30, 9, n_classes=len(loader.idx_to_label), dropout=args.dropout)
     embeddings = PositionalEmbedding(loader.preprocessed_embeddings, loader.vocab_size, 1100, 300)
     if args.use_cuda:
         model = model.cuda()
@@ -50,9 +52,11 @@ if __name__ == "__main__":
     for i in range(args.num_iterations):
         optimizer.zero_grad()
 
-        input, target = loader.torch(args.batch_size, 'train', volatile=False)
-        loss = model.loss(input, target, embeddings, crit, args.use_cuda, eval=False)
-        loss.backward()
+        for step in range(args.steps):
+            
+            input, target = loader.torch(args.batch_size, 'train', volatile=False)
+            loss = model.loss(input, target, embeddings, crit, args.use_cuda, eval=False)
+            loss.backward()
 
         optimizer.step()
         optimizer.update_learning_rate()
