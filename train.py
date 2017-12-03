@@ -33,7 +33,7 @@ if __name__ == "__main__":
     writer = SummaryWriter(args.tensorboard)
 
     t.set_num_threads(args.num_threads)
-    loader = Dataloader('/Users/daniil/projects/teor_inf/utils/data/', '/Users/daniil/projects/wiki.ru.bin')
+    loader = Dataloader('~/projects/teor_inf/utils/data/', '~/projects/wiki.ru.bin')
 
     model = Model(loader.vocab_size, 4, 8, 300, 40, 40, 9, n_classes=len(loader.idx_to_label), dropout=args.dropout)
     embeddings = PositionalEmbedding(loader.preprocessed_embeddings, loader.vocab_size, 1100, 300)
