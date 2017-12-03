@@ -103,8 +103,8 @@ class Dataloader():
         test_data = pnd.read_csv(self.data_file['test'], sep='\t', names=['title', 'article'])
 
         self.data = {
-            'train': train_data[3000:],
-            'valid': train_data[:3000],
+            'train': train_data[:],
+            'valid': train_data[:10],
             'test': test_data
         }
         del train_data, test_data
@@ -195,7 +195,7 @@ class Dataloader():
 
         for i in range(int(15000 / 200)):
 
-            data = list(self.data['test'][i:i + 200]['title'])
+            data = list(self.data['test'][i * 200: i * 200 + 200]['title'])
             data = self.pad_input(data)
 
             yield Variable(t.from_numpy(data), volatile=True)

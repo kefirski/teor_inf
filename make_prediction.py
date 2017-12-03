@@ -1,9 +1,9 @@
 import argparse
 
 import torch as t
-import torch.nn as nn
 import torch.nn.functional as F
 
+import numpy as np
 from model.model import Model
 from model.utils.positional_embedding import PositionalEmbedding
 from utils.dataloader import Dataloader
@@ -22,7 +22,7 @@ if __name__ == "__main__":
     t.set_num_threads(args.num_threads)
     loader = Dataloader('~/projects/teor_inf/utils/data/', '~/projects/wiki.ru.bin')
 
-    model = Model(loader.vocab_size, 6, 14, 300, 30, 30, 9, n_classes=len(loader.idx_to_label), dropout=args.dropout)
+    model = Model(loader.vocab_size, 8, 14, 300, 30, 30, 9, n_classes=len(loader.idx_to_label))
     embeddings = PositionalEmbedding(loader.preprocessed_embeddings, loader.vocab_size, 1100, 300)
 
     model.load_state_dict(t.load(args.save))
@@ -44,7 +44,7 @@ if __name__ == "__main__":
         prediction = F.softmax(logits, dim=1)
         prediction = prediction.cpu().data.numpy()
 
-        result += [loader.idx_to_label[idx] for idx in prediction]
+        result += [loader.idx_to_label[np.argmax(p)] for p in prediction]
 
     text_file = open("prediction.txt", "w")
     text_file.write('\n'.join(result))
