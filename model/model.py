@@ -42,3 +42,19 @@ class Model(nn.Module):
         out = self.out_attention(encoding, mask)
         out = self.conv(out).squeeze(1)
         return self.fc(out)
+
+    def loss(self, input, target, embeddings, crit, cuda, eval=False):
+
+        if eval:
+            self.eval()
+        else:
+            self.train()
+
+        input = embeddings(input)
+
+        if cuda:
+            input, target = input.cuda(), target.cuda()
+
+        logits = self(input)
+
+        return crit(logits, target)
