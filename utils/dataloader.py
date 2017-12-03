@@ -115,7 +115,9 @@ class Dataloader():
         for target in self.data.keys():
             self.data[target]['title'] = self.data[target]['title'].map(lambda line: self.clear_line(line.lower()))
             self.data[target]['article'] = self.data[target]['article'].map(lambda line: self.clear_line(line.lower()))
+
         self.data['train']['class'] = self.data['train']['class'].map(lambda label: self.label_to_idx[label])
+        self.data['valid']['class'] = self.data['valid']['class'].map(lambda label: self.label_to_idx[label])
 
         words = [word
                  for target in self.data.keys()

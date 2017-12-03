@@ -23,7 +23,7 @@ if __name__ == "__main__":
     parser.add_argument('--learning-rate', type=float, default=0.0005, metavar='LR',
                         help='learning rate (default: 0.0005)')
     parser.add_argument('--dropout', type=float, default=0.15, metavar='D',
-                        help='dropout rate (default: 0.1)')
+                        help='dropout rate (default: 0.15)')
     parser.add_argument('--save', type=str, default='trained_model', metavar='TS',
                         help='path where save trained model to (default: "trained_model")')
     parser.add_argument('--tensorboard', type=str, default='default_tb', metavar='TB',
