@@ -1,8 +1,9 @@
 import torch.nn as nn
+from torch.nn.utils.weight_norm import weight_norm
 
 from .utils.attention.embedding import EmbeddingAttention
 from .utils.encoder import Encoder
-from torch.nn.utils.weight_norm import weight_norm
+from .utils.resnet import ResNet
 
 
 class Model(nn.Module):
@@ -19,12 +20,19 @@ class Model(nn.Module):
         self.vocab_size = vocab_size
 
         self.encoder = Encoder(n_layers, n_heads, h_size, k_size, v_size, dropout)
-        self.out_attention = EmbeddingAttention(h_size, 1, dropout)
+        self.out_attention = EmbeddingAttention(h_size, n_lockups, dropout)
 
-        self.fc = nn.Sequential(
-            weight_norm(nn.Linear(h_size, h_size)),
+        self.conv = nn.Sequential(
+            weight_norm(nn.Conv1d(n_lockups, 3, 3, 1, 1, bias=False)),
             nn.SELU(),
 
+            ResNet(3, 3),
+
+            weight_norm(nn.Conv1d(3, 1, 3, 1, 1, bias=False)),
+            nn.SELU()
+        )
+
+        self.fc = nn.Sequential(
             weight_norm(nn.Linear(h_size, 100)),
             nn.SELU(),
 
@@ -34,7 +42,8 @@ class Model(nn.Module):
     def forward(self, input):
 
         encoding, mask = self.encoder(input)
-        out = self.out_attention(encoding, mask).squeeze(1)
+        out = self.out_attention(encoding, mask)
+        out = self.conv(out).squeeze(1)
         return self.fc(out)
 
     def loss(self, input, target, embeddings, crit, cuda, eval=False):
