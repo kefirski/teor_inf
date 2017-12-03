@@ -8,6 +8,7 @@ from tensorboardX import SummaryWriter
 from model.model import Model
 from model.utils.positional_embedding import PositionalEmbedding
 from utils.dataloader import Dataloader
+from model.utils.scheduled_optim import ScheduledOptim
 
 if __name__ == "__main__":
 
@@ -35,12 +36,12 @@ if __name__ == "__main__":
     t.set_num_threads(args.num_threads)
     loader = Dataloader('~/projects/teor_inf/utils/data/', '~/projects/wiki.ru.bin')
 
-    model = Model(loader.vocab_size, 4, 8, 300, 40, 40, 9, n_classes=len(loader.idx_to_label), dropout=args.dropout)
+    model = Model(loader.vocab_size, 8, 14, 300, 30, 30, 9, n_classes=len(loader.idx_to_label), dropout=args.dropout)
     embeddings = PositionalEmbedding(loader.preprocessed_embeddings, loader.vocab_size, 1100, 300)
     if args.use_cuda:
         model = model.cuda()
 
-    optimizer = Adam(model.parameters(), args.learning_rate, betas=(0.5, 0.98))
+    optimizer = ScheduledOptim(Adam(model.parameters(), betas=(0.5, 0.98)), 300, 7000)
 
     crit = nn.CrossEntropyLoss()
 
@@ -54,6 +55,7 @@ if __name__ == "__main__":
         loss.backward()
 
         optimizer.step()
+        optimizer.update_learning_rate()
 
         if i % 25 == 0:
 

@@ -166,7 +166,7 @@ class Dataloader():
         indexes = np.random.choice(list(self.data[target].index), size=batch_size)
         lines = self.data[target].ix[indexes]
 
-        text = list(lines['article'])
+        text = list(lines['title'])
         target = list(lines['class'])
 
         return self.pad_input(text), np.array(target)
