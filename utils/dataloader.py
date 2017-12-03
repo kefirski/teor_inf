@@ -190,3 +190,12 @@ class Dataloader():
                         for var in [text, target]]
 
         return text, target
+
+    def test_data(self):
+
+        for i in range(int(15000 / 200)):
+
+            data = list(self.data['test'][i:i + 200]['title'])
+            data = self.pad_input(data)
+
+            yield Variable(t.from_numpy(data), volatile=True)
