@@ -38,12 +38,12 @@ if __name__ == "__main__":
     t.set_num_threads(args.num_threads)
     loader = Dataloader('~/projects/teor_inf/utils/data/', '~/projects/wiki.ru.bin')
 
-    model = Model(loader.vocab_size, 8, 10, 300, 30, 30, 9, n_classes=len(loader.idx_to_label), dropout=args.dropout)
+    model = Model(loader.vocab_size, 300, 50, n_classes=len(loader.idx_to_label), dropout=args.dropout)
     embeddings = Embedding(loader.preprocessed_embeddings, loader.vocab_size, 300)
     if args.use_cuda:
         model = model.cuda()
 
-    optimizer = ScheduledOptim(Adam(model.parameters(), betas=(0.5, 0.98)), 300, 7000)
+    optimizer = Adam(model.parameters(), args.learning_rate, betas=(0.5, 0.98))
 
     crit = nn.CrossEntropyLoss()
 
@@ -58,7 +58,6 @@ if __name__ == "__main__":
             loss.backward()
 
         optimizer.step()
-        optimizer.update_learning_rate()
 
         if i % 25 == 0:
             input, target = loader.torch(args.batch_size, 'valid', volatile=True)
