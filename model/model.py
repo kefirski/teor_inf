@@ -52,7 +52,7 @@ class Model(nn.Module):
 
         mask = t.eq(input.abs().sum(2), 0).data
 
-        out = self.out_attention(encoding, mask)
+        out = self.out_attention(input, mask)
         out = self.conv(out).squeeze(1)
         return self.fc(out)
 
