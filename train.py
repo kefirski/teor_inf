@@ -2,13 +2,13 @@ import argparse
 
 import torch as t
 import torch.nn as nn
-from torch.optim import Adam
 from tensorboardX import SummaryWriter
+from torch.optim import Adam
 
 from model.model import Model
-from model.utils.positional_embedding import PositionalEmbedding
-from utils.dataloader import Dataloader
+from model.utils.embedding import Embedding
 from model.utils.scheduled_optim import ScheduledOptim
+from utils.dataloader import Dataloader
 
 if __name__ == "__main__":
 
@@ -38,8 +38,8 @@ if __name__ == "__main__":
     t.set_num_threads(args.num_threads)
     loader = Dataloader('~/projects/teor_inf/utils/data/', '~/projects/wiki.ru.bin')
 
-    model = Model(loader.vocab_size, 4, 10, 300, 30, 30, 9, n_classes=len(loader.idx_to_label), dropout=args.dropout)
-    embeddings = PositionalEmbedding(loader.preprocessed_embeddings, loader.vocab_size, 1100, 300)
+    model = Model(loader.vocab_size, 8, 10, 300, 30, 30, 9, n_classes=len(loader.idx_to_label), dropout=args.dropout)
+    embeddings = Embedding(loader.preprocessed_embeddings, loader.vocab_size, 300)
     if args.use_cuda:
         model = model.cuda()
 
@@ -53,7 +53,6 @@ if __name__ == "__main__":
         optimizer.zero_grad()
 
         for step in range(args.steps):
-            
             input, target = loader.torch(args.batch_size, 'train', volatile=False)
             loss = model.loss(input, target, embeddings, crit, args.use_cuda, eval=False)
             loss.backward()
@@ -62,7 +61,6 @@ if __name__ == "__main__":
         optimizer.update_learning_rate()
 
         if i % 25 == 0:
-
             input, target = loader.torch(args.batch_size, 'valid', volatile=True)
             loss = model.loss(input, target, embeddings, crit, args.use_cuda, eval=True)
             loss = loss.cpu().data
@@ -73,4 +71,3 @@ if __name__ == "__main__":
             print('_________')
 
     t.save(model.cpu().state_dict(), args.save)
-

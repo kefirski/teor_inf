@@ -1,9 +1,9 @@
 import argparse
 
+import numpy as np
 import torch as t
 import torch.nn.functional as F
 
-import numpy as np
 from model.model import Model
 from model.utils.positional_embedding import PositionalEmbedding
 from utils.dataloader import Dataloader
@@ -22,7 +22,7 @@ if __name__ == "__main__":
     t.set_num_threads(args.num_threads)
     loader = Dataloader('~/projects/teor_inf/utils/data/', '~/projects/wiki.ru.bin')
 
-    model = Model(loader.vocab_size, 8, 14, 300, 30, 30, 9, n_classes=len(loader.idx_to_label))
+    model = Model(loader.vocab_size, 4, 10, 300, 30, 30, 9, n_classes=len(loader.idx_to_label))
     embeddings = PositionalEmbedding(loader.preprocessed_embeddings, loader.vocab_size, 1100, 300)
 
     model.load_state_dict(t.load(args.save))

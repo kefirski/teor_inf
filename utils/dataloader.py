@@ -1,6 +1,7 @@
 import collections
 import os
 import re
+from nltk.corpus import stopwords
 
 import numpy as np
 import pandas as pnd
@@ -89,11 +90,15 @@ class Dataloader():
 
     @staticmethod
     def clear_line(line):
+        stop_words = stopwords.words('russian')
+
         line = re.sub(r"\/\\_-", " ", line)
         line = re.sub(r'[0-9]+', 'число', line)
         line = re.sub(r"[^a-zа-я']", ' ', line)
         line = re.sub(r"'", " '", line)
         line = re.sub(r'\s+', ' ', line)
+
+        line = ' '.join([word for word in line.split(' ') if word not in stop_words])
 
         return line
 
@@ -104,7 +109,7 @@ class Dataloader():
 
         self.data = {
             'train': train_data[3000:],
-            'valid': train_data[:10],
+            'valid': train_data[:3000],
             'test': test_data
         }
         del train_data, test_data
@@ -195,7 +200,7 @@ class Dataloader():
 
         for i in range(int(15000 / 200)):
 
-            data = list(self.data['article'][i * 200: i * 200 + 200]['title'])
+            data = list(self.data['test'][i * 200: i * 200 + 200]['article'])
             data = self.pad_input(data)
 
             yield Variable(t.from_numpy(data), volatile=True)

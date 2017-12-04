@@ -23,11 +23,8 @@ class Model(nn.Module):
         self.out_attention = EmbeddingAttention(h_size, n_lockups, dropout)
 
         self.conv = nn.Sequential(
-            weight_norm(nn.Conv1d(n_lockups, 3, 3, 1, 1, bias=False)),
+            weight_norm(nn.Conv1d(n_lockups, 3, 1, 1, 1, bias=False)),
             nn.SELU(),
-
-            weight_norm(nn.Conv1d(3, 1, 3, 1, 1, bias=False)),
-            nn.SELU()
         )
 
         self.fc = nn.Sequential(
