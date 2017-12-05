@@ -38,18 +38,18 @@ if __name__ == "__main__":
     t.set_num_threads(args.num_threads)
     loader = Dataloader('~/projects/teor_inf/utils/data/', '~/projects/wiki.ru.bin')
 
-    model = Model(loader.vocab_size, 3, 4, 300, 75, 100, 10, n_classes=len(loader.idx_to_label), dropout=args.dropout)
+    model = Model(loader.vocab_size, 3, 5, 300, 75, 100, 40, n_classes=len(loader.idx_to_label), dropout=args.dropout)
     embeddings = PositionalEmbedding(loader.preprocessed_embeddings, loader.vocab_size, 1100, 300)
     if args.use_cuda:
         model = model.cuda()
 
-    '''
-    Encoder parameters should be updated with fine tuned learning rate,
-    while the rest of the model have the same lr for the whole training process
-    '''
-    optimizer = ScheduledOptim(Adam([{'params': model.encoder.parameters(), 'lr': 1e-3, 'update': True},
-                                     {'params': model.non_encoder_parameters(), 'lr': args.lr, 'update': False}],
-                                    betas=(0.9, 0.98)), 300, 7000)
+    optimizer = ScheduledOptim(
+        Adam(
+            [{'params': model.non_fine_parameters(), 'lr': 1e-3, 'fine': False},
+             {'params': model.encoder.fine_parameters(), 'lr': 1e-3, 'fine': True}],
+            betas=(0.9, 0.98),
+            eps=1e-9),
+        300, 3, 4000)
 
     crit = nn.CrossEntropyLoss()
 

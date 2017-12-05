@@ -1,7 +1,7 @@
 import torch as t
 import torch.nn as nn
 
-from ..utils.attention.multi_head import MultiHeadAttention
+from ..utils.attention.branched import BranchedAttention
 from ..utils.position_wise_nn import PositionWiseNN
 
 
@@ -15,7 +15,7 @@ class EncoderLayer(nn.Module):
         :param dropout: drop prob
         """
         super(EncoderLayer, self).__init__()
-        self.attention = MultiHeadAttention(n_heads, h_size, k_size, v_size, dropout)
+        self.attention = BranchedAttention(n_heads, h_size, k_size, v_size, dropout)
         self.position_wise = PositionWiseNN(h_size, h_size * 4, dropout)
 
     def forward(self, input, mask=None):
@@ -67,3 +67,8 @@ class Encoder(nn.Module):
             out = layer(out, mask_app)
 
         return out, mask
+
+    def fine_parameters(self):
+        for layer in self.layers:
+            for p in layer.attention.fine_parameters():
+                yield p

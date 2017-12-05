@@ -55,6 +55,10 @@ class Model(nn.Module):
 
         return crit(logits, target)
 
-    def non_encoder_parameters(self):
-        for p in [p for p in self.out_attention.parameters()] + [p for p in self.fc.parameters()]:
-            yield p
+    def non_fine_parameters(self):
+
+        fine = self.encoder.fine_parameters()
+
+        for p in self.parameters():
+            if p not in fine:
+                yield p
