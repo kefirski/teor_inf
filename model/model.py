@@ -60,5 +60,5 @@ class Model(nn.Module):
         fine = self.encoder.fine_parameters()
 
         for p in self.parameters():
-            if p not in fine:
+            if all([p is not par for par in fine]):
                 yield p
