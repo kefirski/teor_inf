@@ -57,7 +57,7 @@ class Model(nn.Module):
 
     def non_fine_parameters(self):
 
-        fine = self.encoder.fine_parameters()
+        fine = [p for p in self.encoder.fine_parameters()]
 
         for p in self.parameters():
             if all([id(p) != id(par) for par in fine]):

@@ -1,6 +1,7 @@
 import torch as t
 import torch.nn as nn
 from torch.nn.init import xavier_normal
+import torch.nn.functional as F
 
 from model.utils.layer_norm import LayerNorm
 from .scaled_dot_product import ScaledDotProductAttention
@@ -18,7 +19,7 @@ class BranchedAttention(nn.Module):
         super(BranchedAttention, self).__init__()
 
         self.v_size = v_size
-
+        
         self.n_heads = n_heads
         self.h_size = h_size
 
