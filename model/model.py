@@ -5,6 +5,7 @@ from torch.nn.utils.weight_norm import weight_norm
 from .utils.attention.embedding import EmbeddingAttention
 from .utils.encoder import Encoder
 from .utils.resnet import ResNet
+from .utils.seq_to_seq import SeqToSeq
 
 
 class Model(nn.Module):
@@ -20,7 +21,9 @@ class Model(nn.Module):
 
         self.vocab_size = vocab_size
 
-        self.out_attention = EmbeddingAttention(h_size, n_lockups, dropout)
+        self.rnn = SeqToSeq(h_size, h_size, 2, True)
+
+        self.out_attention = EmbeddingAttention(h_size * 2, n_lockups, dropout)
 
         self.conv = nn.Sequential(
             weight_norm(nn.Conv1d(n_lockups, 20, 3, 1, 1, bias=False)),
@@ -40,7 +43,7 @@ class Model(nn.Module):
         )
 
         self.fc = nn.Sequential(
-            weight_norm(nn.Linear(h_size, 100)),
+            weight_norm(nn.Linear(h_size * 2, 100)),
             nn.SELU(),
 
             nn.Dropout(dropout),

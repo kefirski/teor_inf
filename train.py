@@ -38,7 +38,7 @@ if __name__ == "__main__":
     t.set_num_threads(args.num_threads)
     loader = Dataloader('~/projects/teor_inf/utils/data/', '~/projects/wiki.ru.bin')
 
-    model = Model(loader.vocab_size, 300, 50, n_classes=len(loader.idx_to_label), dropout=args.dropout)
+    model = Model(loader.vocab_size, 300, 30, n_classes=len(loader.idx_to_label), dropout=args.dropout)
     embeddings = Embedding(loader.preprocessed_embeddings, loader.vocab_size, 300)
     if args.use_cuda:
         model = model.cuda()
