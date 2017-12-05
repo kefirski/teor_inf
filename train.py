@@ -6,7 +6,7 @@ from tensorboardX import SummaryWriter
 from torch.optim import Adam
 
 from model.model import Model
-from model.utils.embedding import Embedding
+from model.utils.positional_embedding import PositionalEmbedding
 from model.utils.scheduled_optim import ScheduledOptim
 from utils.dataloader import Dataloader
 
@@ -23,7 +23,7 @@ if __name__ == "__main__":
                         help='num threads (default: 4)')
     parser.add_argument('--use-cuda', type=bool, default=False, metavar='CUDA',
                         help='use cuda (default: False)')
-    parser.add_argument('--learning-rate', type=float, default=0.0005, metavar='LR',
+    parser.add_argument('--lr', type=float, default=0.0005, metavar='LR',
                         help='learning rate (default: 0.0005)')
     parser.add_argument('--dropout', type=float, default=0.15, metavar='D',
                         help='dropout rate (default: 0.15)')
@@ -38,12 +38,18 @@ if __name__ == "__main__":
     t.set_num_threads(args.num_threads)
     loader = Dataloader('~/projects/teor_inf/utils/data/', '~/projects/wiki.ru.bin')
 
-    model = Model(loader.vocab_size, 300, 30, n_classes=len(loader.idx_to_label), dropout=args.dropout)
-    embeddings = Embedding(loader.preprocessed_embeddings, loader.vocab_size, 300)
+    model = Model(loader.vocab_size, 3, 4, 300, 75, 100, 10, n_classes=len(loader.idx_to_label), dropout=args.dropout)
+    embeddings = PositionalEmbedding(loader.preprocessed_embeddings, loader.vocab_size, 1100, 300)
     if args.use_cuda:
         model = model.cuda()
 
-    optimizer = Adam(model.parameters(), args.learning_rate, betas=(0.5, 0.98))
+    '''
+    Encoder parameters should be updated with fine tuned learning rate,
+    while the rest of the model have the same lr for the whole training process
+    '''
+    optimizer = ScheduledOptim(Adam([{'params': model.encoder.parameters(), 'lr': 1e-3, 'update': True},
+                                     {'params': model.non_encoder_parameters(), 'lr': args.lr, 'update': False}],
+                                    betas=(0.9, 0.98)), 300, 7000)
 
     crit = nn.CrossEntropyLoss()
 
@@ -57,6 +63,7 @@ if __name__ == "__main__":
             loss = model.loss(input, target, embeddings, crit, args.use_cuda, eval=False)
             loss.backward()
 
+        optimizer.update_learning_rate()
         optimizer.step()
 
         if i % 25 == 0:

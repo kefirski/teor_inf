@@ -21,4 +21,5 @@ class ScheduledOptim(object):
             np.power(self.n_warmup_steps, -1.5) * self.n_current_steps])
 
         for param_group in self.optimizer.param_groups:
-            param_group['lr'] = new_lr
+            if param_group['update']:
+                param_group['lr'] = new_lr
