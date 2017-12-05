@@ -19,7 +19,7 @@ class BranchedAttention(nn.Module):
         super(BranchedAttention, self).__init__()
 
         self.v_size = v_size
-        
+
         self.n_heads = n_heads
         self.h_size = h_size
 
@@ -88,7 +88,7 @@ class BranchedAttention(nn.Module):
 
         k = F.softmax(self.k, dim=0)
         out = t.stack([out[i] * k[i] for i in range(self.n_heads)], 0)
-        out = out.view(self.n_heads * batch_size, -1, self.h_size * 3)
+        out = out.view(self.n_heads * batch_size, -1, self.h_size * 2)
         out = self.out_fc(out).view(self.n_heads, -1, self.h_size)
 
         a = F.softmax(self.a, dim=0)
